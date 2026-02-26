@@ -1,0 +1,62 @@
+# Dest Partners - Sports Management Platform
+
+## Overview
+
+Dest Partners is a comprehensive sports and fitness management platform designed for different types of sports businesses including academies, gyms, and turf facilities. The platform provides a unified dashboard for managing operations, with role-based interfaces tailored to specific business types.
+
+## Key Features
+
+### Multi-Role Support
+- **Academy**: Manage coaches, courses, and students
+- **GYM**: Manage trainers, programs, and members
+- **Turf**: Manage turf facilities and bookings
+
+## Key Components
+
+### Authentication Flow
+1. **Registration**: Email verification with OTP
+2. **Onboarding**: Business type selection and profile setup
+3. **Payment**: One-time ₹999 platform access fee
+4. **Dashboard Access**: Role-based interface
+
+### Payment System
+- **One-time Fee**: ₹999 for lifetime platform access
+- **Razorpay Integration**: Secure payment processing
+- **Order Management**: Payment verification and status tracking
+- **Access Control**: Payment verification on every login
+
+### Role-Based Features
+
+#### Academy Role
+- Coach management and scheduling
+- Course creation with batch management
+- Student enrollment and progress tracking
+- Payment plan management
+
+#### GYM Role
+- Trainer management and scheduling
+- Program creation and management
+- Member enrollment and tracking
+- Membership plan management
+
+#### Turf Role
+- Turf facility management
+- Court availability scheduling
+- Online booking system
+- Booking management and notifications
+
+## Security Features
+
+- **Row Level Security (RLS)**: Database-level access control
+- **Authentication**: Supabase Auth with email verification
+- **Payment Security**: Razorpay secure payment processing
+- **Input Validation**: Client and server-side validation
+- **HTTPS Only**: Secure connections required
+
+## Support
+
+For technical support or feature requests, use the in-app support system or contact the development team.
+
+---
+
+*This llms.txt file provides comprehensive context about the Dest Partners platform for AI assistants and developers working with the codebase.*
