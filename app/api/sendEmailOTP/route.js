@@ -24,6 +24,9 @@ export async function POST(request) {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
+      connectionTimeout: 10000,  // fail after 10s instead of 120s
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
     });
 
     // Email content
@@ -43,9 +46,10 @@ export async function POST(request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error sending OTP:", error);
+    console.error("Error sending OTP:", error.message);
+    console.error("SMTP details — code:", error.code, "| command:", error.command, "| response:", error.response);
     return NextResponse.json(
-      { success: false, error: "Failed to send OTP" },
+      { success: false, error: "Failed to send OTP", detail: error.message },
       { status: 500 }
     );
   }

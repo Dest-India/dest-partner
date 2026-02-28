@@ -18,7 +18,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { Loader } from "@/components/ui/loader";
 import { generateOTP } from "@/lib/store";
-import { isUserExist } from "@/lib/supabase";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -140,38 +139,31 @@ export default function RegisterPage() {
       setSubmitting(false);
       return;
     }
-    const userExists = await isUserExist(email);
-    if (userExists) {
-      toast.error("User already exists");
-      setSubmitting(false);
-      return;
-    } else {
-      const newOtp = generateOTP();
-      setGeneratedOtp(newOtp);
-      try {
-        const response = await fetch("/api/sendEmailOTP", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            to: email,
-            otp: newOtp,
-          }),
-        });
-        if (!response.ok) {
-          throw new Error("Failed to send OTP");
-        }
-        setSubmitting(false);
-        setVerifyingEmail(true);
-        startTimer(); // Start expiry timer
-        toast.success("OTP sent successfully");
-      } catch (error) {
-        console.error("Error sending OTP:", error);
-        toast.error("Failed to send OTP");
-        setSubmitting(false);
+    // Send OTP first; duplicate email check happens server-side in /api/auth/register
+    const newOtp = generateOTP();
+    setGeneratedOtp(newOtp);
+    try {
+      const response = await fetch("/api/sendEmailOTP", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: email,
+          otp: newOtp,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to send OTP");
       }
-      return;
+      setSubmitting(false);
+      setVerifyingEmail(true);
+      startTimer(); // Start expiry timer
+      toast.success("OTP sent successfully");
+    } catch (error) {
+      console.error("Error sending OTP:", error);
+      toast.error("Failed to send OTP");
+      setSubmitting(false);
     }
   };
 
