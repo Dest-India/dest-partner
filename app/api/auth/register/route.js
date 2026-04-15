@@ -24,16 +24,31 @@ export async function POST(request) {
       return NextResponse.json({ error: "Invalid OTP" }, { status: 400 });
     }
 
-    // Check if user already exists
-    const { data: existingUser } = await supabaseAdmin
+    // ── Duplicate-account checks ──────────────────────────────────────────
+    // 1. Registry check (fast path — catches cross-account collisions too)
+    const { data: registry } = await supabaseAdmin
+      .from("account_registry")
+      .select("has_partner_account")
+      .eq("email", email)
+      .maybeSingle();
+
+    if (registry?.has_partner_account) {
+      return NextResponse.json(
+        { error: "A partner account with this email already exists. Please log in." },
+        { status: 409 }
+      );
+    }
+
+    // 2. Direct partners table fallback (handles rows predating the registry)
+    const { data: existingPartner } = await supabaseAdmin
       .from("partners")
       .select("id")
       .eq("email", email)
-      .single();
+      .maybeSingle();
 
-    if (existingUser) {
+    if (existingPartner) {
       return NextResponse.json(
-        { error: "User with this email already exists" },
+        { error: "A partner account with this email already exists. Please log in." },
         { status: 409 }
       );
     }
@@ -42,7 +57,7 @@ export async function POST(request) {
     const salt = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(password, salt);
 
-    // Create user
+    // Create partner
     const { data: newUser, error: createError } = await supabaseAdmin
       .from("partners")
       .insert({ email, password_hash })
@@ -50,12 +65,22 @@ export async function POST(request) {
       .single();
 
     if (createError) {
-      console.error("Error creating user:", createError);
+      console.error("Error creating partner:", createError);
       return NextResponse.json(
-        { error: "Failed to create user" },
+        { error: "Failed to create account" },
         { status: 500 }
       );
     }
+
+    // ── Update account registry ───────────────────────────────────────────
+    await supabaseAdmin.from("account_registry").upsert(
+      {
+        email,
+        has_partner_account: true,
+        partner_id:          newUser.id,
+      },
+      { onConflict: "email" },
+    );
 
     // Remove sensitive data before returning
     const userToReturn = { ...newUser };

@@ -61,10 +61,14 @@ export async function POST(request) {
       );
     }
 
+    // Determine the base URL dynamically
+    const origin = 
+      process.env.NEXT_PUBLIC_APP_URL || 
+      request.headers.get("origin") || 
+      (request.headers.get("host") ? `https://${request.headers.get("host")}` : "http://localhost:3000");
+
     // Generate reset link
-    const resetLink = `${
-      process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-    }/forgot-password?token=${token}`;
+    const resetLink = `${origin}/forgot-password?token=${token}`;
 
     // Send email with reset link
     try {
